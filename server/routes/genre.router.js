@@ -27,6 +27,7 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:genreId', (req, res) => {
+  const genreId = req.params.genreId;
   const query = `SELECT * FROM "genres" ORDER BY "name" ASC`;
   pool.query(query)
     .then( result => {
@@ -39,8 +40,12 @@ router.put('/:genreId', (req, res) => {
 });
 
 router.delete('/:genreId', (req, res) => {
-  const query = `SELECT * FROM "genres" ORDER BY "name" ASC`;
-  pool.query(query)
+  const genreId = req.params.genreId;
+  const query = `
+    DELETE FROM "genres"
+    WHERE "id" = $1
+  `;
+  pool.query(query, [genreId])
     .then( result => {
       res.send(result.rows);
     })
