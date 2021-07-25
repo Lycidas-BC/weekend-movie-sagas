@@ -23,8 +23,8 @@ function* fetchAllMovies() {
         console.log('get all:', movies.data);
         yield put({ type: 'SET_MOVIES', payload: movies.data });
 
-    } catch {
-        console.log('get all error');
+    } catch(error) {
+        console.log('get all error', error);
     }
         
 }
