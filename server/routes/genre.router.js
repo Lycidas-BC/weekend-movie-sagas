@@ -28,8 +28,13 @@ router.post('/', (req, res) => {
 
 router.put('/:genreId', (req, res) => {
   const genreId = req.params.genreId;
-  const query = `SELECT * FROM "genres" ORDER BY "name" ASC`;
-  pool.query(query)
+  const newGenre = req.body;
+  const query = `
+    UPDATE "genres"
+    SET "name" = $1
+    WHERE "id" = $2
+  `;
+  pool.query(query, [newGenre, genreId])
     .then( result => {
       res.send(result.rows);
     })
