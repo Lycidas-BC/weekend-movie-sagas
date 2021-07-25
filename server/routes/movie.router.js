@@ -4,7 +4,10 @@ const pool = require('../modules/pool')
 
 router.get('/', (req, res) => {
 
-  const query = `SELECT * FROM movies ORDER BY "title" ASC`;
+  const query = `
+    SELECT * FROM "movies"
+    ORDER BY "title" ASC;
+  `;
   pool.query(query)
     .then( result => {
       res.send(result.rows);
@@ -20,9 +23,10 @@ router.post('/', (req, res) => {
   console.log(req.body);
   // RETURNING "id" will give us back the id of the created movie
   const insertMovieQuery = `
-  INSERT INTO "movies" ("title", "poster", "description")
-  VALUES ($1, $2, $3)
-  RETURNING "id";`
+    INSERT INTO "movies" ("title", "poster", "description")
+    VALUES ($1, $2, $3)
+    RETURNING "id";
+  `;
 
   // FIRST QUERY MAKES MOVIE
   pool.query(insertMovieQuery, [req.body.title, req.body.poster, req.body.description])
@@ -46,7 +50,7 @@ router.post('/', (req, res) => {
       for (const index in req.body.genre_id) {
         insertMovieGenreQuery += `($1, $${index+2}),`
       }
-      // remove last character - an we only need "," between insert values - and add closing ";"
+      // remove last character - we only need "," between insert values - and add closing ";"
       insertMovieGenreQuery = insertMovieGenreQuery.substring(0, insertMovieGenreQuery.length - 1);
       insertMovieGenreQuery += `;`
         // SECOND QUERY ADDS GENRE(S) FOR THAT NEW MOVIE
@@ -59,8 +63,75 @@ router.post('/', (req, res) => {
           res.sendStatus(500)
         })
     }
-    
 // Catch for first query
+  }).catch(err => {
+    console.log(err);
+    res.sendStatus(500)
+  })
+})
+
+// PUT for movies table
+router.put('/movie/:movieId', (req, res) => {
+  console.log(req.body);
+  // get id
+  const movieId = req.params.movieId;
+
+  // query to update "movies" table
+  const updateMovieQuery = `
+    UPDATE "movies"
+    SET "title" = $1,
+      "poster" = $2,
+      "description" = $3
+    WHERE "id" = $4;
+  `;
+
+  // QUERY TO EDIT MOVIE
+  pool.query(updateMovieQuery, [req.body.title, req.body.poster, req.body.description, movieId])
+  .then(result => {
+      res.sendStatus(201);
+  }).catch(err => {
+    console.log(err);
+    res.sendStatus(500)
+  })
+})
+
+// PUT to update movie genres in movies_genres table
+router.put('/genre/:movieId', (req, res) => {
+  console.log(req.body);
+  // get id
+  const movieId = req.params.movieId;
+
+  // query to update "movies" table
+  const updateMovieQuery = `
+    
+  `;
+
+  // QUERY TO EDIT MOVIE
+  pool.query(updateMovieQuery, [req.body.title, req.body.poster, req.body.description])
+  .then(result => {
+      res.sendStatus(201);
+  }).catch(err => {
+    console.log(err);
+    res.sendStatus(500)
+  })
+})
+
+router.delete('/:movieId', (req, res) => {
+  // get id
+  const movieId = req.params.movieId;
+
+  // query to delete movie from "movies_genres" table and "movies" table
+  const deleteMovieQuery = `
+    DELETE FROM "movies_genres"
+    WHERE "movie_id" = $1;
+    DELETE FROM "movies"
+    WHERE "id" = $1;
+  `;
+
+  // QUERY TO DELETE MOVIE
+  pool.query(deleteMovieQuery, [movieId])
+  .then(result => {
+      res.sendStatus(201);
   }).catch(err => {
     console.log(err);
     res.sendStatus(500)
