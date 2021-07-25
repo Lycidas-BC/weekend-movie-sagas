@@ -2,21 +2,61 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../modules/pool')
 
+// GET list of movies
 router.get('/', (req, res) => {
+  if (req.body.genre_id === undefined){
+    // if user hasn't specified a genre,
+    // get all movies
+    const query = `
+      SELECT * FROM "movies"
+      ORDER BY "title" ASC;
+    `;
+    pool.query(query)
+      .then( result => {
+        res.send(result.rows);
+      })
+      .catch(err => {
+        console.log('ERROR: Get all movies', err);
+        res.sendStatus(500)
+      })
+  } else {
+    // if user has specified a genre,
+    // only get movies with that genre
+    const query = `
+      SELECT "movies"."id", "movies"."title", "movies"."poster", "movies"."description"
+      FROM "movies"
+      JOIN "movies_genres" ON "movies"."id" = "movies_genres"."movie_id"
+      WHERE "movies_genres"."genre_id" = $1;
+    `;
+    pool.query(query, [req.body.genre_id])
+      .then( result => {
+        res.send(result.rows);
+      })
+      .catch(err => {
+        console.log('ERROR: Get all movies in specified genre', err);
+        res.sendStatus(500)
+      })
+  };
+});
 
+router.get('/details/:movieId', (req, res) => {
+  const movieId = req.params.movieId;
   const query = `
-    SELECT * FROM "movies"
-    ORDER BY "title" ASC;
+    SELECT "movies"."id", "movies"."title", "movies"."poster", "movies"."description", array_agg("genres"."name") AS "genreList"
+    FROM "movies"
+    JOIN "movies_genres" ON "movies"."id" = "movies_genres"."movie_id"
+    JOIN "genres" ON "genres"."id" = "movies_genres"."genre_id"
+    WHERE "movies"."id" = $1
+    GROUP BY "movies"."id", "movies"."title", "movies"."poster", "movies"."description";
   `;
-  pool.query(query)
+  pool.query(query, [movieId])
     .then( result => {
       res.send(result.rows);
     })
     .catch(err => {
-      console.log('ERROR: Get all movies', err);
+      console.log('ERROR: Get movie details', err);
       res.sendStatus(500)
     })
-
 });
 
 router.post('/', (req, res) => {
@@ -86,7 +126,7 @@ router.put('/:movieId', (req, res) => {
     WHERE "id" = $4;
   `;
 
-  // QUERY TO EDIT "movies" TABLE
+  // QUERY TO EDIT MOVIE
   pool.query(updateMovieQuery, [req.body.title, req.body.poster, req.body.description, movieId])
   .then(result => {
     // query to edit "movies" table succeeded
@@ -113,18 +153,17 @@ router.put('/:movieId', (req, res) => {
     }
 
     // ADD ANY GENRES NOT IN "movies_genres" TABLE
-
-    // for each genre in genreIdArray,
-    // check if it's already associated with the movie
-    // and add the association if it doesn't exist
     for (const index in genreIdArray) {
+      // for each genre in genreIdArray,
+      // check if it's already associated with the movie
+      // and add the association if it doesn't exist
       updateMovieGenreQuery += `
         BEGIN
           IF NOT EXISTS (SELECT * FROM "movies_genres" 
                           WHERE "movie_id" = $1
                           AND "genre_id" = $${index + 2})
           BEGIN
-              INSERT INTO "movies_genres"  ("movie_id", "genre_id")
+              INSERT INTO "movies_genres" ("movie_id", "genre_id")
               VALUES ($1, $${index + 2})
           END
         END;
@@ -140,7 +179,7 @@ router.put('/:movieId', (req, res) => {
       res.sendStatus(500)
     })
 
-  // catch for query to edit "movies" table
+  // catch for query to edit movie
   }).catch(err => {
     console.log(err);
     res.sendStatus(500)
