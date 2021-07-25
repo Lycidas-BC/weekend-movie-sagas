@@ -3,7 +3,11 @@ const router = express.Router();
 const pool = require('../modules/pool')
 
 router.get('/', (req, res) => {
-  const query = `SELECT * FROM "genres" ORDER BY "name" ASC`;
+  // query
+  const query = `
+    SELECT * FROM "genres"
+    ORDER BY "name" ASC;
+  `;
   pool.query(query)
     .then( result => {
       res.send(result.rows);
@@ -15,8 +19,14 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const query = `SELECT * FROM "genres" ORDER BY "name" ASC`;
-  pool.query(query)
+  // get data passed in
+  const newGenreName = req.body.genreName;
+  // query
+  const query = `
+    INSERT INTO "genres" ("name")
+    VALUES ($1);
+  `;
+  pool.query(query, [newGenreName])
     .then( result => {
       res.send(result.rows);
     })
@@ -27,14 +37,16 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:genreId', (req, res) => {
+  // get data passed in
   const genreId = req.params.genreId;
-  const newGenre = req.body;
+  const updatedGenreName = req.body.genreName;
+  // query
   const query = `
     UPDATE "genres"
     SET "name" = $1
-    WHERE "id" = $2
+    WHERE "id" = $2;
   `;
-  pool.query(query, [newGenre, genreId])
+  pool.query(query, [updatedGenreName, genreId])
     .then( result => {
       res.send(result.rows);
     })
@@ -45,10 +57,12 @@ router.put('/:genreId', (req, res) => {
 });
 
 router.delete('/:genreId', (req, res) => {
+  // get id
   const genreId = req.params.genreId;
+  // query
   const query = `
     DELETE FROM "genres"
-    WHERE "id" = $1
+    WHERE "id" = $1;
   `;
   pool.query(query, [genreId])
     .then( result => {
