@@ -36,8 +36,8 @@ router.post('/', (req, res) => {
     const createdMovieId = result.rows[0].id
 
     // Now handle the genre reference
-    // groundwork for adding multiple genres: expect req.body.genre_id to be an array of genre_ids
-    if (req.body.genre_id.length = 0) {
+    // groundwork for adding multiple genres: expect req.body.genre_ids to be an array of genre_ids
+    if (req.body.genre_ids.length = 0) {
       //NO GENRES TO ADD
       res.sendStatus(201);
     } else {
@@ -47,14 +47,14 @@ router.post('/', (req, res) => {
         VALUES 
       `;
       // add ($1, $#) for each genre_id, to add all in one query while protecting against SQL injection
-      for (const index in req.body.genre_id) {
+      for (const index in req.body.genre_ids) {
         insertMovieGenreQuery += `($1, $${index+2}),`
       }
       // remove last character - we only need "," between insert values - and add closing ";"
       insertMovieGenreQuery = insertMovieGenreQuery.substring(0, insertMovieGenreQuery.length - 1);
       insertMovieGenreQuery += `;`
         // SECOND QUERY ADDS GENRE(S) FOR THAT NEW MOVIE
-        pool.query(insertMovieGenreQuery, [createdMovieId].concat(req.body.genre_id)).then(result => {
+        pool.query(insertMovieGenreQuery, [createdMovieId].concat(req.body.genre_ids)).then(result => {
           //Now that both are done, send back success!
           res.sendStatus(201);
         }).catch(err => {
@@ -71,10 +71,11 @@ router.post('/', (req, res) => {
 })
 
 // PUT for movies table
-router.put('/movie/:movieId', (req, res) => {
+router.put('/:movieId', (req, res) => {
   console.log(req.body);
-  // get id
+  // get movieId and any associated genre_ids
   const movieId = req.params.movieId;
+  const genreIdArray = req.body.genre_ids;
 
   // query to update "movies" table
   const updateMovieQuery = `
@@ -85,31 +86,61 @@ router.put('/movie/:movieId', (req, res) => {
     WHERE "id" = $4;
   `;
 
-  // QUERY TO EDIT MOVIE
+  // QUERY TO EDIT "movies" TABLE
   pool.query(updateMovieQuery, [req.body.title, req.body.poster, req.body.description, movieId])
   .then(result => {
-      res.sendStatus(201);
-  }).catch(err => {
-    console.log(err);
-    res.sendStatus(500)
-  })
-})
+    // query to edit "movies" table succeeded
+    // CONSTRUCT QUERY TO UPDATE "movies_genres" TABLE
+  
+    // REMOVE GENRES THAT NO LONGER APPLY
+    // if genreIdArray is empty, delete all genres
+    let updateMovieGenreQuery = `
+      DELETE FROM "movies_genres"
+      WHERE "movie_id" = $1
+    `;
 
-// PUT to update movie genres in movies_genres table
-router.put('/genre/:movieId', (req, res) => {
-  console.log(req.body);
-  // get id
-  const movieId = req.params.movieId;
+    // otherwise, only delete genres not in genreIdArray
+    let placeholderString = "(";
+    for (const index in genreIdArray) {
+      placeholderString += `$${index + 2},`;
+    }
+    // replace trailing "," with ");" to close parentheses and end delete
+    placeholderString = placeholderString.substring(0, placeholderString.length - 1);
+    placeholderString += `);`
 
-  // query to update "movies" table
-  const updateMovieQuery = `
-    
-  `;
+    if ( genreIdArray.length > 0 ) {
+      updateMovieGenreQuery += `AND "genre_id" NOT IN ${placeholderString}`;
+    }
 
-  // QUERY TO EDIT MOVIE
-  pool.query(updateMovieQuery, [req.body.title, req.body.poster, req.body.description])
-  .then(result => {
-      res.sendStatus(201);
+    // ADD ANY GENRES NOT IN "movies_genres" TABLE
+
+    // for each genre in genreIdArray,
+    // check if it's already associated with the movie
+    // and add the association if it doesn't exist
+    for (const index in genreIdArray) {
+      updateMovieGenreQuery += `
+        BEGIN
+          IF NOT EXISTS (SELECT * FROM "movies_genres" 
+                          WHERE "movie_id" = $1
+                          AND "genre_id" = $${index + 2})
+          BEGIN
+              INSERT INTO "movies_genres"  ("movie_id", "genre_id")
+              VALUES ($1, $${index + 2})
+          END
+        END;
+      `;
+    }
+
+    // QUERY TO EDIT MOVIE GENRES
+    pool.query(updateMovieGenreQuery, [movieId].concat(genreIdArray))
+    .then(result => {
+        res.sendStatus(201);
+    }).catch(err => {
+      console.log(err);
+      res.sendStatus(500)
+    })
+
+  // catch for query to edit "movies" table
   }).catch(err => {
     console.log(err);
     res.sendStatus(500)
