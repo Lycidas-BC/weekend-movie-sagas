@@ -11,6 +11,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import CancelIcon from '@material-ui/icons/Cancel';
+import DoneIcon from '@material-ui/icons/Done';
 import TextField from '@material-ui/core/TextField';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import Select from '@material-ui/core/Select';
@@ -98,6 +99,24 @@ function EditMovie() {
         console.log("editModeBooleans", editModeBooleans);
     }
 
+    const handleEdit = (valueToToggle) => {
+        initializeLocalCopy();
+        switch (valueToToggle) {
+            case "title":
+                setLocalMovieDetails(oldState => ({ ...oldState, title: !oldState.title}));
+                break;
+            case "poster":
+                setLocalMovieDetails(oldState => ({ ...oldState, poster: !oldState.poster}));
+                break;
+            case "description":
+                setLocalMovieDetails(oldState => ({ ...oldState, description: !oldState.description}));
+                break;
+            default:
+                break;
+        }
+        console.log("handleEdit", setLocalMovieDetails);
+    }
+
     const saveEdits = () => {
         console.log(`in saveEdits`, movieId);
     }
@@ -120,16 +139,18 @@ function EditMovie() {
                     {
                         editModeBooleans.title ?
                         <div>
-                            <Button onClick={() => toggleEditMode("title")}><EditIcon></EditIcon></Button>
+                            <Button onClick={() => toggleEditMode("title")}><CancelIcon></CancelIcon></Button>
                             <TextField value={localMovieDetails.title}></TextField>
+                            <Button onClick={() => toggleEditMode("title")}><DoneIcon></DoneIcon></Button>
                         </div> :
                         <h2 style={{ color: "black" }}> <Button onClick={() => toggleEditMode("title")}><EditIcon></EditIcon></Button> {localCopyInitialized ? localMovieDetails.title : movieDetails.title}</h2>
                     }
                     {
                         editModeBooleans.poster ?
                         <div>
-                            <Button onClick={() => toggleEditMode("poster")}><EditIcon style={{color: "black", alignItems: "right" }}></EditIcon></Button>
+                            <Button onClick={() => toggleEditMode("poster")}><CancelIcon style={{color: "black", alignItems: "right" }}></CancelIcon></Button>
                             <TextField placeholder="New poster URL"></TextField>
+                            <Button onClick={() => toggleEditMode("poster")}><DoneIcon></DoneIcon></Button>
                         </div> :
                         <div style={{ display: "flex", alignContent: "flex-start", margin: "auto", justifyContent: "center" }}>
                             <Button onClick={() => toggleEditMode("poster")}><EditIcon style={{color: "black", alignItems: "right" }}></EditIcon></Button>
@@ -146,8 +167,9 @@ function EditMovie() {
                     {
                         editModeBooleans.description ?
                         <div>
-                            <Button onClick={() => toggleEditMode("description")}><EditIcon></EditIcon></Button>
-                            <TextareaAutosize value={localMovieDetails.description} minRows={3} style={{width: "80%"}}></TextareaAutosize>
+                            <Button onClick={() => toggleEditMode("description")} style={{width: "10%"}}><CancelIcon></CancelIcon></Button>
+                            <TextareaAutosize value={localMovieDetails.description} minRows={3} style={{width: "70%"}}></TextareaAutosize>
+                            <Button onClick={() => toggleEditMode("description")} style={{width: "10%"}}><DoneIcon></DoneIcon></Button>
                         </div> :
                         <div style={{color: "black", textAlign: "left", margin: "20px"}}> <Button onClick={() => toggleEditMode("description")}><EditIcon></EditIcon></Button> <b>Description:</b> {localCopyInitialized ? localMovieDetails.description : movieDetails.description}</div>
                     }
