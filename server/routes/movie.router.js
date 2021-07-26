@@ -77,7 +77,7 @@ router.post('/', (req, res) => {
 
     // Now handle the genre reference
     // groundwork for adding multiple genres: expect req.body.genre_ids to be an array of genre_ids
-    if (req.body.genre_ids.length = 0) {
+    if (Number(req.body.genre_ids.length) === 0) {
       //NO GENRES TO ADD
       res.sendStatus(201);
     } else {
@@ -88,7 +88,7 @@ router.post('/', (req, res) => {
       `;
       // add ($1, $#) for each genre_id, to add all in one query while protecting against SQL injection
       for (const index in req.body.genre_ids) {
-        insertMovieGenreQuery += `($1, $${index+2}),`
+        insertMovieGenreQuery += `($1, $${Number(index)+2}),`
       }
       // remove last character - we only need "," between insert values - and add closing ";"
       insertMovieGenreQuery = insertMovieGenreQuery.substring(0, insertMovieGenreQuery.length - 1);
@@ -96,6 +96,7 @@ router.post('/', (req, res) => {
         // SECOND QUERY ADDS GENRE(S) FOR THAT NEW MOVIE
         pool.query(insertMovieGenreQuery, [createdMovieId].concat(req.body.genre_ids)).then(result => {
           //Now that both are done, send back success!
+          console.log('insertMovieGenreQuery', insertMovieGenreQuery, [createdMovieId].concat(req.body.genre_ids));
           res.sendStatus(201);
         }).catch(err => {
           // catch for second query
