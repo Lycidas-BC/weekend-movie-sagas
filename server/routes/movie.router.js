@@ -4,39 +4,37 @@ const pool = require('../modules/pool')
 
 // GET list of movies
 router.get('/', (req, res) => {
-  if (req.body.genre_id === undefined){
-    // if user hasn't specified a genre,
-    // get all movies
-    const query = `
-      SELECT * FROM "movies"
-      ORDER BY "title" ASC;
-    `;
-    pool.query(query)
-      .then( result => {
-        res.status(201).send(result.rows);
-      })
-      .catch(err => {
-        console.log('ERROR: Get all movies', err);
-        res.sendStatus(500)
-      })
-  } else {
-    // if user has specified a genre,
-    // only get movies with that genre
-    const query = `
-      SELECT "movies"."id", "movies"."title", "movies"."poster", "movies"."description"
-      FROM "movies"
-      JOIN "movies_genres" ON "movies"."id" = "movies_genres"."movie_id"
-      WHERE "movies_genres"."genre_id" = $1;
-    `;
-    pool.query(query, [req.body.genre_id])
-      .then( result => {
-        res.send(result.rows);
-      })
-      .catch(err => {
-        console.log('ERROR: Get all movies in specified genre', err);
-        res.sendStatus(500)
-      })
-  };
+  // get all movies
+  const query = `
+    SELECT * FROM "movies"
+    ORDER BY "title" ASC;
+  `;
+  pool.query(query)
+    .then( result => {
+      res.status(201).send(result.rows);
+    })
+    .catch(err => {
+      console.log('ERROR: Get all movies', err);
+      res.sendStatus(500)
+    })
+});
+
+router.get('/:genreId', (req, res) => {
+  // only get movies in genre
+  const query = `
+    SELECT "movies"."id", "movies"."title", "movies"."poster", "movies"."description"
+    FROM "movies"
+    JOIN "movies_genres" ON "movies"."id" = "movies_genres"."movie_id"
+    WHERE "movies_genres"."genre_id" = $1;
+  `;
+  pool.query(query, [req.params.genreId])
+    .then( result => {
+      res.send(result.rows);
+    })
+    .catch(err => {
+      console.log('ERROR: Get all movies in specified genre', err);
+      res.sendStatus(500)
+    })
 });
 
 router.get('/details/:movieId', (req, res) => {

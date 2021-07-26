@@ -25,6 +25,18 @@ function* fetchAllMovies() {
     }
 }
 
+function* fetchMoviesInGenre(action) {
+    // get all movies from a certain genre
+    try {
+        const movies = yield axios.get(`/api/movie/${action.payload.genre_id}`);
+        console.log('movies in genre:', movies.data);
+        yield put({ type: 'SET_MOVIES', payload: movies.data });
+
+    } catch(error) {
+        console.log('get all error', error);
+    }
+}
+
 function* fetchMovieDetails(action) {
     // get movie details
     try {
@@ -60,6 +72,7 @@ function* addMovie(action) {
 export function* rootSaga() {
     yield takeEvery('FETCH_GENRES', fetchAllGenres);
     yield takeEvery('FETCH_MOVIES', fetchAllMovies);
+    yield takeEvery('FETCH_MOVIES_IN_GENRE', fetchMoviesInGenre);
     yield takeEvery('FETCH_MOVIE_DETAILS', fetchMovieDetails);
     yield takeEvery('UPDATE_MOVIE_DETAILS', updateMovieDetails);
     yield takeEvery('ADD_MOVIE', addMovie);
