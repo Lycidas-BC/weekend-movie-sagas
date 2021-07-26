@@ -11,6 +11,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import TextField from '@material-ui/core/TextField';
+import Select from '@material-ui/core/Select';
 import './EditMovie.css'
 
 const useStyles = makeStyles((theme) => ({root: {flexGrow: 1},paper: {padding: theme.spacing(2), textAlign: "center", color: theme.palette.text.secondary, justifyContent: "center" }})); // materialUI stuff
@@ -26,10 +27,33 @@ function EditMovie() {
     const [editModeBooleans, setEditModeBooleans] = useState({
         title: false,
         poster: false,
-        description: false
+        description: false,
+        addGenre: false
     });
-    
-    let localCopyInitialized = false;
+    // let localCopyInitialized = false;
+
+    const addGenre = (newGenreId) => {
+
+    }
+
+    const toggleEditMode = (valueToToggle) => {
+        let localCopy = editModeBooleans;
+        switch (valueToToggle) {
+            case "title":
+                localCopy.title = !localCopy.title;
+                break;
+            case "poster":
+                localCopy.poster = !localCopy.poster;
+                break;
+            case "description":
+                localCopy.description = !localCopy.description;
+                break;
+            case "addGenre":
+                localCopy.addGenre = !localCopy.addGenre;
+                break;
+        }
+        setEditModeBooleans(localCopy);
+    }
 
     const saveEdits = () => {
         console.log(`in saveEdits`, movieId);
@@ -83,7 +107,24 @@ function EditMovie() {
                                     <li key={index}>{genre} <Button><DeleteIcon></DeleteIcon></Button></li>
                                 )
                             })}
-                            <li><Button><AddIcon></AddIcon></Button></li>
+                            {
+                                editModeBooleans.addGenre ?
+                                <div>
+                                    <Button onClick={() => toggleEditMode("addGenre")}></Button>
+                                    <Select
+                                    native
+                                    onChange={addGenre}
+                                    inputProps={{
+                                        name: 'genre'
+                                    }}
+                                    >
+                                        {genres.map((genre, index) => {
+                                            return (<option key={index} value={genre.id}>{genre.name}</option>)
+                                        })}
+                                    </Select>
+                                </div> :
+                                <li><Button onClick={() => toggleEditMode("addGenre")}><AddIcon></AddIcon></Button></li>
+                            }
                         </ul>
                     </div>
                     <br />

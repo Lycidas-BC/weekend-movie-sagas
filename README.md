@@ -19,11 +19,11 @@ To-do:
         [ ] show movies by genre
         [ ] search bar
             [ ] bigger stretch: do this server side
-    [ ] on click, bring user to /details view for that movie
-        [ ] list *ALL* genres (use query from other assignment)
-        [ ] load movie details
-            [ ] STRETCH: keep them on refresh
-            [ ] react router url params: /details/1 (list movie name in url?)
+    [X] on click, bring user to /details view for that movie
+        [X] list *ALL* genres (use query from other assignment)
+        [X] load movie details
+            [X] STRETCH: keep them on refresh
+            [X] react router url params: /details/1 (list movie name in url?)
     [ ] "add movie" page and a way to get there
     [ ] Add movie page:
         [ ] inputs:
@@ -39,8 +39,8 @@ To-do:
             [ ] save
                 [ ] add inputs to the database
                 [ ] bring user to home page (which includes new movie)
-    [ ] STRETCH: edit page
-        [ ] display current values
+    [X] STRETCH: edit page
+        [X] display current values
         [ ] inputs
             [ ] input field for changing the title of a selected movie
             [ ] textarea for changing the description
@@ -60,13 +60,13 @@ To-do:
         [ ] form to add genres to database
         [ ] list of all genres in database with an 'x' to remove them from the database
             [ ] be sure to remove corresponding items in "movies_genres" table
-    [ ] move sagas and reducers out of index.js and into separate files
-        [ ] `src/redux/reducers`
-        [ ] `src/redux/sagas`
-    [ ] Invest some time in styling it up!
-        [ ] Research cards for your movie posters on the list page
-        [ ] Research grids for your movie posters on the Movie List page
-    [ ] Commit your code frequently! You should have at 15+ commits on a project of this size. Use branches to help break down your features.
-    [ ] Comment your code.
+    [X] move sagas and reducers out of index.js and into separate files
+        [X] `src/redux/reducers`
+        [X] `src/redux/sagas`
+    [X] Invest some time in styling it up!
+        [X] Research cards for your movie posters on the list page
+        [X] Research grids for your movie posters on the Movie List page
+    [X] Commit your code frequently! You should have at 15+ commits on a project of this size. Use branches to help break down your features.
+    [X] Comment your code.
     [ ] Update this README to include a description of the project in your own words.
     [ ] add material-ui breadcrumbs: https://material-ui.com/components/breadcrumbs/
