@@ -16,11 +16,6 @@ function MovieItem({movieIn}) {
         console.log('path:', movieIn.poster);
     };
 
-    // <div key={movieIn.id} >
-    //   <h3>{movieIn.title}</h3>
-    //   <img src={movieIn.poster} alt={movieIn.title}/>
-    //</div>
-
     return (
       <Grid item style={{height: "100%", width: "24%", padding: "20px 10px" }}  id={movieIn.id}>
         <Paper className={classes.paper}>
@@ -35,7 +30,7 @@ function MovieItem({movieIn}) {
       />
           <br />
           <Button
-            style={{ width: "180px", height: "42px" }}
+            style={{ width: "90%" }}
             variant="contained"
             color="primary"
             onClick={() => movieDetails()}
