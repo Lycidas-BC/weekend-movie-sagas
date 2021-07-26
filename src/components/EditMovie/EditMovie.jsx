@@ -168,13 +168,16 @@ function EditMovie() {
 
     const saveEdits = () => {
         console.log(`in saveEdits`, movieId);
-        dispatch({ type: 'UPDATE_MOVIE_DETAILS', payload: {
-            id: movieId,
-            title: localMovieDetails.title,
-            poster: localMovieDetails.poster,
-            description: localMovieDetails.description,
-            genre_ids: localMovieDetails.genreIdList
-        } });
+        if (localCopyInitialized) {
+            //only update movie if edits were made
+            dispatch({ type: 'UPDATE_MOVIE_DETAILS', payload: {
+                id: movieId,
+                title: localMovieDetails.title,
+                poster: localMovieDetails.poster,
+                description: localMovieDetails.description,
+                genre_ids: localMovieDetails.genreIdList
+            } });
+        }
         history.push(`/details/${movieId}`);
     }
 

@@ -176,7 +176,7 @@ router.put('/:movieId', (req, res) => {
             console.log("insertQuery", movieId, genreId);
             if(genreId === genreIdArray[genreIdArray.length - 1]){
               //only send success status on last insert
-              res.sendStatus(201);
+              res.status(201).send(movieId);
             }
           })
           .catch(err => {
