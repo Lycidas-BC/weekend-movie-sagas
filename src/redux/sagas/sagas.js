@@ -45,10 +45,20 @@ function* updateMovieDetails(action) {
     }
 }
 
+function* addMovie(action) {
+    // get movie details
+    try {
+        yield call(axios.post(`/api/movie`, action.payload));
+    } catch(error) {
+        console.log('POST details error', error);
+    }
+}
+
 // Create the rootSaga generator function
 export function* rootSaga() {
     yield takeEvery('FETCH_GENRES', fetchAllGenres);
     yield takeEvery('FETCH_MOVIES', fetchAllMovies);
     yield takeEvery('FETCH_MOVIE_DETAILS', fetchMovieDetails);
     yield takeEvery('UPDATE_MOVIE_DETAILS', updateMovieDetails);
+    yield takeEvery('ADD_MOVIE', addMovie);
 }
