@@ -10,6 +10,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
+import CancelIcon from '@material-ui/icons/Cancel';
 import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
 import './EditMovie.css'
@@ -24,35 +25,73 @@ function EditMovie() {
     const movieDetails = useSelector(store => store.movieDetails);
     const genres = useSelector(store => store.genres);
     const [localMovieDetails, setLocalMovieDetails] = useState(movieDetails);
+    const [genreToAdd, setGenreToAdd] = useState(0);
     const [editModeBooleans, setEditModeBooleans] = useState({
         title: false,
         poster: false,
         description: false,
         addGenre: false
     });
-    // let localCopyInitialized = false;
+    let localCopyInitialized = false;
 
-    const addGenre = (newGenreId) => {
+    const addGenre = () => {
+        console.log('In addGenre', genreToAdd, genres[genreToAdd].name);
+        //create local copies arrays to update
+        let newGenreList = localMovieDetails.genreList;
+        let newGenreIdList = localMovieDetails.genreIdList;
+        //add id of new genre to local genre id list
+        newGenreIdList.push(genreToAdd);
+        //get genre name that corresponds to genre id and add it to local genre list
+        const genreObject = genres.filter(obj => {
+            return obj.id === genreToAdd
+          })
+        newGenreList.push(genreObject[0].name);
+        //update state
+        setLocalMovieDetails(oldState => ({ ...oldState, genreList: newGenreList, genreIdList: newGenreIdList}));
+        //display new array
+        toggleEditMode("addGenre");
+    }
 
+    const removeGenre = (indexToRemove) => {
+        console.log("In removeGenre", indexToRemove);
+        //create local copies arrays to update
+        let newGenreList = localMovieDetails.genreList;
+        newGenreList.splice(indexToRemove, 1);
+        let newGenreIdList = localMovieDetails.genreIdList;
+        newGenreIdList.splice(indexToRemove, 1);
+        //update state
+        setLocalMovieDetails(oldState => ({ ...oldState, genreList: newGenreList, genreIdList: newGenreIdList}));
+    }
+
+    const handleChange = (event) => {
+        setGenreToAdd(Number(event.target.value));
+    }
+
+    const initializeLocalCopy = () => {
+        if (!localCopyInitialized) {
+            //localMovieDetails is updating before dispatch has time to load movieDetails
+            //so, on the first call to an edit button, I'm making sure it's initialized
+            setLocalMovieDetails(movieDetails);
+            localCopyInitialized = true;
+        }
     }
 
     const toggleEditMode = (valueToToggle) => {
-        let localCopy = editModeBooleans;
+        initializeLocalCopy();
         switch (valueToToggle) {
             case "title":
-                localCopy.title = !localCopy.title;
+                setEditModeBooleans(oldState => ({ ...oldState, title: !oldState.title}));
                 break;
             case "poster":
-                localCopy.poster = !localCopy.poster;
+                setEditModeBooleans(oldState => ({ ...oldState, poster: !oldState.poster}));
                 break;
             case "description":
-                localCopy.description = !localCopy.description;
+                setEditModeBooleans(oldState => ({ ...oldState, description: !oldState.description}));
                 break;
             case "addGenre":
-                localCopy.addGenre = !localCopy.addGenre;
+                setEditModeBooleans(oldState => ({ ...oldState, addGenre: !oldState.addGenre}));
                 break;
         }
-        setEditModeBooleans(localCopy);
     }
 
     const saveEdits = () => {
@@ -68,7 +107,7 @@ function EditMovie() {
         dispatch({ type: 'FETCH_GENRES' });
     }, []);
 
-    console.log("movie details:", movieDetails, "genres:", genres);
+    console.log("movie details:", movieDetails, "genres:", genres, 'localDetails:', localMovieDetails);
     return (
         <section>
             <h1>Movie Details</h1>
@@ -77,7 +116,7 @@ function EditMovie() {
                     {
                         editModeBooleans.title ?
                         <TextField></TextField> :
-                        <h2 style={{ color: "black" }}> <Button><EditIcon></EditIcon></Button> {movieDetails.title}</h2>
+                        <h2 style={{ color: "black" }}> <Button><EditIcon></EditIcon></Button> {localCopyInitialized ? localMovieDetails.title : movieDetails.title}</h2>
                     }
                     {
                         editModeBooleans.poster ?
@@ -89,7 +128,7 @@ function EditMovie() {
                                 className={movieDetails.title}
                                 component="img"
                                 alt={movieDetails.title}
-                                src={`../../${movieDetails.poster}`}
+                                src={localCopyInitialized ? localMovieDetails.poster : `../../${movieDetails.poster}`}
                                 title={movieDetails.title}
                             />
                         </div>
@@ -97,23 +136,24 @@ function EditMovie() {
                     {
                         editModeBooleans.description ?
                         <TextField></TextField> :
-                        <div style={{color: "black", textAlign: "left", margin: "20px"}}> <Button><EditIcon></EditIcon></Button> <b>Description:</b> {movieDetails.description}</div>
+                        <div style={{color: "black", textAlign: "left", margin: "20px"}}> <Button><EditIcon></EditIcon></Button> <b>Description:</b> {localCopyInitialized ? localMovieDetails.description : movieDetails.description}</div>
                     }
                     <div style={{color: "black", textAlign: "left", margin: "20px"}}>
                         <b>Genres:</b>
                         <ul>
-                            {movieDetails.genreList.map((genre, index) => {
+                            {(localCopyInitialized ? localMovieDetails.genreList : movieDetails.genreList).map((genre, index) => {
                                 return (
-                                    <li key={index}>{genre} <Button><DeleteIcon></DeleteIcon></Button></li>
+                                    <li key={index}>{genre} <Button onClick={() => removeGenre(index)}><DeleteIcon></DeleteIcon></Button></li>
                                 )
                             })}
                             {
                                 editModeBooleans.addGenre ?
                                 <div>
-                                    <Button onClick={() => toggleEditMode("addGenre")}></Button>
+                                    <Button onClick={() => toggleEditMode("addGenre")}><CancelIcon></CancelIcon></Button>
                                     <Select
                                     native
-                                    onChange={addGenre}
+                                    value={genreToAdd}
+                                    onChange={handleChange}
                                     inputProps={{
                                         name: 'genre'
                                     }}
@@ -122,6 +162,7 @@ function EditMovie() {
                                             return (<option key={index} value={genre.id}>{genre.name}</option>)
                                         })}
                                     </Select>
+                                    <Button onClick={() => addGenre()}><AddIcon></AddIcon></Button>
                                 </div> :
                                 <li><Button onClick={() => toggleEditMode("addGenre")}><AddIcon></AddIcon></Button></li>
                             }
