@@ -43,7 +43,7 @@ function MovieDetails() {
                         className={movieDetails.title}
                         component="img"
                         alt={movieDetails.title}
-                        src={`../../${movieDetails.poster}`}
+                        src={movieDetails.poster.search("https://") < 0 ? `/${movieDetails.poster}` : movieDetails.poster}
                         title={movieDetails.title}
                     />
                     <div style={{color: "black", textAlign: "left", margin: "20px"}}><b>Description:</b> {movieDetails.description}</div>

@@ -1,4 +1,4 @@
-import { takeEvery, put } from 'redux-saga/effects';
+import { takeEvery, put, call} from 'redux-saga/effects';
 import axios from 'axios';
 
 function* fetchAllGenres() {
@@ -32,7 +32,16 @@ function* fetchMovieDetails(action) {
         yield put({ type: 'SET_MOVIE_DETAILS', payload: movieDetails.data[0] });
 
     } catch(error) {
-        console.log('get details error', error);
+        console.log('GET details error', error);
+    }
+}
+
+function* updateMovieDetails(action) {
+    // get movie details
+    try {
+        yield call(axios.put(`/api/movie/${action.payload.id}`, action.payload));
+    } catch(error) {
+        console.log('PUT details error', error);
     }
 }
 
@@ -41,4 +50,5 @@ export function* rootSaga() {
     yield takeEvery('FETCH_GENRES', fetchAllGenres);
     yield takeEvery('FETCH_MOVIES', fetchAllMovies);
     yield takeEvery('FETCH_MOVIE_DETAILS', fetchMovieDetails);
+    yield takeEvery('UPDATE_MOVIE_DETAILS', updateMovieDetails);
 }
