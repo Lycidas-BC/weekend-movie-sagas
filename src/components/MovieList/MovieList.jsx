@@ -18,9 +18,10 @@ function MovieList() {
             <section className="movies" style={{ alignItems: "flex-end" }}>
                 {movies.map(movie => {
                     return (
-                        <MovieItem key={movie.id} movieIn={movie} buttonVisible={true} ></MovieItem>
+                        <MovieItem key={movie.id} movieIn={movie} addMovieScreen={false} ></MovieItem>
                     );
                 })}
+                <MovieItem movieIn={"none"} addMovieScreen={true} ></MovieItem>
             </section>
         </main>
 
