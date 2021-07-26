@@ -12,6 +12,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import CancelIcon from '@material-ui/icons/Cancel';
 import TextField from '@material-ui/core/TextField';
+import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import Select from '@material-ui/core/Select';
 import './EditMovie.css'
 
@@ -91,7 +92,10 @@ function EditMovie() {
             case "addGenre":
                 setEditModeBooleans(oldState => ({ ...oldState, addGenre: !oldState.addGenre}));
                 break;
+            default:
+                break;
         }
+        console.log("editModeBooleans", editModeBooleans);
     }
 
     const saveEdits = () => {
@@ -115,14 +119,20 @@ function EditMovie() {
                 <Paper className={classes.paper}>
                     {
                         editModeBooleans.title ?
-                        <TextField></TextField> :
-                        <h2 style={{ color: "black" }}> <Button><EditIcon></EditIcon></Button> {localCopyInitialized ? localMovieDetails.title : movieDetails.title}</h2>
+                        <div>
+                            <Button onClick={() => toggleEditMode("title")}><EditIcon></EditIcon></Button>
+                            <TextField value={localMovieDetails.title}></TextField>
+                        </div> :
+                        <h2 style={{ color: "black" }}> <Button onClick={() => toggleEditMode("title")}><EditIcon></EditIcon></Button> {localCopyInitialized ? localMovieDetails.title : movieDetails.title}</h2>
                     }
                     {
                         editModeBooleans.poster ?
-                        <TextField></TextField> :
+                        <div>
+                            <Button onClick={() => toggleEditMode("poster")}><EditIcon style={{color: "black", alignItems: "right" }}></EditIcon></Button>
+                            <TextField placeholder="New poster URL"></TextField>
+                        </div> :
                         <div style={{ display: "flex", alignContent: "flex-start", margin: "auto", justifyContent: "center" }}>
-                            <Button><EditIcon style={{color: "black", alignItems: "right" }}></EditIcon></Button>
+                            <Button onClick={() => toggleEditMode("poster")}><EditIcon style={{color: "black", alignItems: "right" }}></EditIcon></Button>
                             <CardMedia
                                 style={{maxHeight: "40%", maxWidth: "40%", padding: "10% 7% 10% 7%", backgroundImage: "url(../../images/frame.jpg)", backgroundRepeat: "no-repeat", backgroundSize: "100% 100%" }}
                                 className={movieDetails.title}
@@ -135,8 +145,11 @@ function EditMovie() {
                     }
                     {
                         editModeBooleans.description ?
-                        <TextField></TextField> :
-                        <div style={{color: "black", textAlign: "left", margin: "20px"}}> <Button><EditIcon></EditIcon></Button> <b>Description:</b> {localCopyInitialized ? localMovieDetails.description : movieDetails.description}</div>
+                        <div>
+                            <Button onClick={() => toggleEditMode("description")}><EditIcon></EditIcon></Button>
+                            <TextareaAutosize value={localMovieDetails.description} minRows={3} style={{width: "80%"}}></TextareaAutosize>
+                        </div> :
+                        <div style={{color: "black", textAlign: "left", margin: "20px"}}> <Button onClick={() => toggleEditMode("description")}><EditIcon></EditIcon></Button> <b>Description:</b> {localCopyInitialized ? localMovieDetails.description : movieDetails.description}</div>
                     }
                     <div style={{color: "black", textAlign: "left", margin: "20px"}}>
                         <b>Genres:</b>
