@@ -24,35 +24,36 @@ To-do:
         [X] load movie details
             [X] STRETCH: keep them on refresh
             [X] react router url params: /details/1 (list movie name in url?)
-    [ ] "add movie" page and a way to get there
-    [ ] Add movie page:
-        [ ] inputs:
-            [ ] movie title
-            [ ] poster image URL
-            [ ] textarea for description
-            [ ] dropdown for genres
-                [ ] populate with genres in DB
-            [ ] STRETCH: allow user to add more than one genre
-        [ ] buttons:
-            [ ] cancel
-                [ ] return to home screen
-            [ ] save
-                [ ] add inputs to the database
-                [ ] bring user to home page (which includes new movie)
+    [X] "add movie" page and a way to get there
+    [X] Add movie page:
+        [X] inputs:
+            [X] movie title
+            [X] poster image URL
+            [X] textarea for description
+            [X] dropdown for genres
+                [X] populate with genres in DB
+            [X] STRETCH: allow user to add more than one genre
+        [X] buttons:
+            [X] cancel
+                [X] return to home screen
+            [X] save
+                [X] add inputs to the database
+                [X] bring user to home page (which includes new movie)
     [X] STRETCH: edit page
         [X] display current values
-        [ ] inputs
-            [ ] input field for changing the title of a selected movie
-            [ ] textarea for changing the description
-            [ ] means of adding genres
-            [ ] means of deleting genres
-            [ ] edit image URL / path
-        [ ] buttons
-            [ ] cancel
-                [ ] bring user to movie's Details page
-            [ ] save
-                [ ] update db
-                [ ] go to Details Page and show new info
+        [X] inputs
+            [X] input field for changing the title of a selected movie
+            [X] textarea for changing the description
+            [X] means of adding genres
+            [X] means of deleting genres
+            [X] edit image URL / path
+        [X] buttons
+            [X] cancel
+                [X] bring user to movie's Details page
+            [X] save
+                [X] update db
+                [X] go to Details Page
+                [ ] show new info
     [ ] STRETCH: admin screen:
         [ ] link from home page
         [ ] login form (username and password)
