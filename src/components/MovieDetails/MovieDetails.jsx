@@ -20,7 +20,7 @@ function MovieDetails() {
 
     const editMovie = () => {
         console.log(`Go to edit movie page`, movieId);
-        history.push(`/details/${movieId}`);
+        history.push(`/edit_movie/${movieId}`);
     }
 
     const goHome = () => {
