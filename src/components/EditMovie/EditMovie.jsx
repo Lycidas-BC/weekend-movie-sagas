@@ -19,6 +19,15 @@ import './EditMovie.css'
 
 const useStyles = makeStyles((theme) => ({root: {flexGrow: 1},paper: {padding: theme.spacing(2), textAlign: "center", color: theme.palette.text.secondary, justifyContent: "center" }})); // materialUI stuff
 
+const blankMovieObject = {
+    id: "",
+    title: "",
+    poster: "",
+    description: "",
+    genreList: [],
+    genreIdList: []
+  };
+
 function EditMovie() {
     const classes = useStyles();
     const history = useHistory();
@@ -26,7 +35,7 @@ function EditMovie() {
     const dispatch = useDispatch();
     const movieDetails = useSelector(store => store.movieDetails);
     const genres = useSelector(store => store.genres);
-    const [localMovieDetails, setLocalMovieDetails] = useState(movieDetails);
+    const [localMovieDetails, setLocalMovieDetails] = useState(blankMovieObject);
     const [genreToAdd, setGenreToAdd] = useState(0);
     const [tempTitle, setTempTitle] = useState("");
     const [tempPoster, setTempPoster] = useState("");
@@ -37,7 +46,7 @@ function EditMovie() {
         description: false,
         addGenre: false
     });
-    let localCopyInitialized = false;
+    const [localCopyInitialized, setLocalCopyInitialized] = useState(false);
 
     const addGenre = () => {
         console.log('In addGenre', genreToAdd, genres[genreToAdd].name);
@@ -76,11 +85,14 @@ function EditMovie() {
         if (!localCopyInitialized) {
             //localMovieDetails is updating before dispatch has time to load movieDetails
             //so, on the first call to an edit button, I'm making sure it's initialized
-            setLocalMovieDetails(movieDetails);
-            setTempTitle(movieDetails.title);
-            setTempPoster(movieDetails.poster);
-            setTempDescription(movieDetails.description);
-            localCopyInitialized = true;
+            console.log("initializing local variables");
+            let localDetails = movieDetails;
+            localDetails.poster = `../../${movieDetails.poster}`;
+            setLocalMovieDetails(localDetails);
+            setTempTitle(localDetails.title);
+            setTempPoster(localDetails.poster);
+            setTempDescription(localDetails.description);
+            setLocalCopyInitialized(true);
         }
     }
 
@@ -106,7 +118,7 @@ function EditMovie() {
     }
 
     const cancelEdit = (editToCancel) => {
-        initializeLocalCopy();
+        console.log('editToCancel',editToCancel, localMovieDetails);
         switch (editToCancel) {
             case "title":
                 setTempTitle(localMovieDetails.title);
@@ -123,13 +135,13 @@ function EditMovie() {
             default:
                 break;
         }
-        console.log("handleEdit", setLocalMovieDetails);
     }
 
     const handleEdit = (fieldToHandle) => {
-        initializeLocalCopy();
+        console.log('fieldToHandle',fieldToHandle, localMovieDetails,[tempTitle],[tempPoster],[tempDescription]);
         switch (fieldToHandle) {
             case "title":
+                console.log("tempTitle",tempTitle);
                 setLocalMovieDetails(oldState => ({ ...oldState, title: tempTitle}));
                 toggleEditMode("title");
                 break;
@@ -144,7 +156,6 @@ function EditMovie() {
             default:
                 break;
         }
-        console.log("handleEdit", setLocalMovieDetails);
     }
 
     const saveEdits = () => {
@@ -160,7 +171,7 @@ function EditMovie() {
         dispatch({ type: 'FETCH_GENRES' });
     }, []);
 
-    console.log("movie details:", movieDetails, "genres:", genres, 'localDetails:', localMovieDetails);
+    console.log('localDetails:', localMovieDetails);
     return (
         <section>
             <h1>Movie Details</h1>
