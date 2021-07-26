@@ -60,7 +60,6 @@ router.get('/details/:movieId', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  console.log(req.body);
   // RETURNING "id" will give us back the id of the created movie
   const insertMovieQuery = `
     INSERT INTO "movies" ("title", "poster", "description")
@@ -71,8 +70,6 @@ router.post('/', (req, res) => {
   // FIRST QUERY MAKES MOVIE
   pool.query(insertMovieQuery, [req.body.title, req.body.poster, req.body.description])
   .then(result => {
-    console.log('New Movie Id:', result.rows[0].id); //ID IS HERE!
-    
     const createdMovieId = result.rows[0].id
 
     // Now handle the genre reference
@@ -96,7 +93,6 @@ router.post('/', (req, res) => {
         // SECOND QUERY ADDS GENRE(S) FOR THAT NEW MOVIE
         pool.query(insertMovieGenreQuery, [createdMovieId].concat(req.body.genre_ids)).then(result => {
           //Now that both are done, send back success!
-          console.log('insertMovieGenreQuery', insertMovieGenreQuery, [createdMovieId].concat(req.body.genre_ids));
           res.sendStatus(201);
         }).catch(err => {
           // catch for second query
@@ -113,7 +109,6 @@ router.post('/', (req, res) => {
 
 // PUT for movies table
 router.put('/:movieId', (req, res) => {
-  console.log(req.body);
   // get movieId and any associated genre_ids
   const movieId = Number(req.params.movieId);
   const genreIdArray = req.body.genre_ids;
@@ -165,7 +160,6 @@ router.put('/:movieId', (req, res) => {
         `;
         pool.query(checkIfExistQuery, [movieId, genreId])
         .then(result => {
-          console.log("checkIfExistQuery result", result.rows[0].count);
           if (Number(result.rows[0].count) === 0) {
             // if genre isn't already in db, add it
             const insertQuery = `
@@ -174,7 +168,6 @@ router.put('/:movieId', (req, res) => {
             `;
             pool.query(insertQuery, [movieId, genreId])
           .then(result => {
-            console.log("insertQuery", movieId, genreId);
             if(genreId === genreIdArray[genreIdArray.length - 1]){
               //only send success status on last insert
               res.status(201).send(movieId);
