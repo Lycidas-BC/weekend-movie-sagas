@@ -3,7 +3,8 @@ const blankMovieObject = {
   title: "",
   poster: "",
   description: "",
-  genreList: []
+  genreList: [],
+  genreIdList: []
 };
 
 // Used to store movies returned from the server

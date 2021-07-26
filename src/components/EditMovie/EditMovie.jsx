@@ -35,15 +35,36 @@ function EditMovie() {
     let localCopyInitialized = false;
 
     const addGenre = () => {
-        console.log('In addGenre', genreToAdd);
+        console.log('In addGenre', genreToAdd, genres[genreToAdd].name);
+        //create local copies arrays to update
         let newGenreList = localMovieDetails.genreList;
-        newGenreList.push(genres[genreToAdd].name);
-        setLocalMovieDetails(oldState => ({ ...oldState, genreList: newGenreList}));
+        let newGenreIdList = localMovieDetails.genreIdList;
+        //add id of new genre to local genre id list
+        newGenreIdList.push(genreToAdd);
+        //get genre name that corresponds to genre id and add it to local genre list
+        const genreObject = genres.filter(obj => {
+            return obj.id === genreToAdd
+          })
+        newGenreList.push(genreObject[0].name);
+        //update state
+        setLocalMovieDetails(oldState => ({ ...oldState, genreList: newGenreList, genreIdList: newGenreIdList}));
+        //display new array
         toggleEditMode("addGenre");
     }
 
+    const removeGenre = (indexToRemove) => {
+        console.log("In removeGenre", indexToRemove);
+        //create local copies arrays to update
+        let newGenreList = localMovieDetails.genreList;
+        newGenreList.splice(indexToRemove, 1);
+        let newGenreIdList = localMovieDetails.genreIdList;
+        newGenreIdList.splice(indexToRemove, 1);
+        //update state
+        setLocalMovieDetails(oldState => ({ ...oldState, genreList: newGenreList, genreIdList: newGenreIdList}));
+    }
+
     const handleChange = (event) => {
-        setGenreToAdd(event.target.value);
+        setGenreToAdd(Number(event.target.value));
     }
 
     const initializeLocalCopy = () => {
@@ -122,7 +143,7 @@ function EditMovie() {
                         <ul>
                             {(localCopyInitialized ? localMovieDetails.genreList : movieDetails.genreList).map((genre, index) => {
                                 return (
-                                    <li key={index}>{genre} <Button><DeleteIcon></DeleteIcon></Button></li>
+                                    <li key={index}>{genre} <Button onClick={() => removeGenre(index)}><DeleteIcon></DeleteIcon></Button></li>
                                 )
                             })}
                             {
