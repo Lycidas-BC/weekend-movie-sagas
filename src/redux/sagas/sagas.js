@@ -40,6 +40,7 @@ function* updateMovieDetails(action) {
     // get movie details
     try {
         yield call(axios.put(`/api/movie/${action.payload.id}`, action.payload));
+        yield put({ type: 'FETCH_MOVIE_DETAILS', payload: action.payload.id });
     } catch(error) {
         console.log('PUT details error', error);
     }
@@ -49,6 +50,7 @@ function* addMovie(action) {
     // get movie details
     try {
         yield call(axios.post(`/api/movie`, action.payload));
+        yield put({ type: 'FETCH_MOVIES' });
     } catch(error) {
         console.log('POST details error', error);
     }

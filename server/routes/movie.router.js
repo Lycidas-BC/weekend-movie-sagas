@@ -44,8 +44,8 @@ router.get('/details/:movieId', (req, res) => {
   const query = `
     SELECT "movies"."id", "movies"."title", "movies"."poster", "movies"."description", array_agg("genres"."name") AS "genreList", array_agg("genres"."id") AS "genreIdList"
     FROM "movies"
-    JOIN "movies_genres" ON "movies"."id" = "movies_genres"."movie_id"
-    JOIN "genres" ON "genres"."id" = "movies_genres"."genre_id"
+    LEFT JOIN "movies_genres" ON "movies"."id" = "movies_genres"."movie_id"
+    LEFT JOIN "genres" ON "genres"."id" = "movies_genres"."genre_id"
     WHERE "movies"."id" = $1
     GROUP BY "movies"."id", "movies"."title", "movies"."poster", "movies"."description";
   `;
