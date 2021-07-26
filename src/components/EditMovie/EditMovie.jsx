@@ -28,6 +28,9 @@ function EditMovie() {
     const genres = useSelector(store => store.genres);
     const [localMovieDetails, setLocalMovieDetails] = useState(movieDetails);
     const [genreToAdd, setGenreToAdd] = useState(0);
+    const [tempTitle, setTempTitle] = useState("");
+    const [tempPoster, setTempPoster] = useState("");
+    const [tempDescription, setTempDescription] = useState("");
     const [editModeBooleans, setEditModeBooleans] = useState({
         title: false,
         poster: false,
@@ -74,6 +77,9 @@ function EditMovie() {
             //localMovieDetails is updating before dispatch has time to load movieDetails
             //so, on the first call to an edit button, I'm making sure it's initialized
             setLocalMovieDetails(movieDetails);
+            setTempTitle(movieDetails.title);
+            setTempPoster(movieDetails.poster);
+            setTempDescription(movieDetails.description);
             localCopyInitialized = true;
         }
     }
@@ -99,17 +105,41 @@ function EditMovie() {
         console.log("editModeBooleans", editModeBooleans);
     }
 
-    const handleEdit = (valueToToggle) => {
+    const cancelEdit = (editToCancel) => {
         initializeLocalCopy();
-        switch (valueToToggle) {
+        switch (editToCancel) {
             case "title":
-                setLocalMovieDetails(oldState => ({ ...oldState, title: !oldState.title}));
+                setTempTitle(localMovieDetails.title);
+                toggleEditMode("title");
                 break;
             case "poster":
-                setLocalMovieDetails(oldState => ({ ...oldState, poster: !oldState.poster}));
+                setTempPoster(localMovieDetails.poster);
+                toggleEditMode("poster");
                 break;
             case "description":
-                setLocalMovieDetails(oldState => ({ ...oldState, description: !oldState.description}));
+                setTempDescription(localMovieDetails.description);
+                toggleEditMode("description");
+                break;
+            default:
+                break;
+        }
+        console.log("handleEdit", setLocalMovieDetails);
+    }
+
+    const handleEdit = (fieldToHandle) => {
+        initializeLocalCopy();
+        switch (fieldToHandle) {
+            case "title":
+                setLocalMovieDetails(oldState => ({ ...oldState, title: tempTitle}));
+                toggleEditMode("title");
+                break;
+            case "poster":
+                setLocalMovieDetails(oldState => ({ ...oldState, poster: tempPoster}));
+                toggleEditMode("poster");
+                break;
+            case "description":
+                setLocalMovieDetails(oldState => ({ ...oldState, description: tempDescription}));
+                toggleEditMode("description");
                 break;
             default:
                 break;
@@ -139,18 +169,18 @@ function EditMovie() {
                     {
                         editModeBooleans.title ?
                         <div>
-                            <Button onClick={() => toggleEditMode("title")}><CancelIcon></CancelIcon></Button>
-                            <TextField value={localMovieDetails.title}></TextField>
-                            <Button onClick={() => toggleEditMode("title")}><DoneIcon></DoneIcon></Button>
+                            <Button onClick={() => cancelEdit("title")}><CancelIcon></CancelIcon></Button>
+                            <TextField value={tempTitle} onChange={(event) => setTempTitle(event.target.value)}></TextField>
+                            <Button onClick={() => handleEdit("title")}><DoneIcon></DoneIcon></Button>
                         </div> :
                         <h2 style={{ color: "black" }}> <Button onClick={() => toggleEditMode("title")}><EditIcon></EditIcon></Button> {localCopyInitialized ? localMovieDetails.title : movieDetails.title}</h2>
                     }
                     {
                         editModeBooleans.poster ?
                         <div>
-                            <Button onClick={() => toggleEditMode("poster")}><CancelIcon style={{color: "black", alignItems: "right" }}></CancelIcon></Button>
-                            <TextField placeholder="New poster URL"></TextField>
-                            <Button onClick={() => toggleEditMode("poster")}><DoneIcon></DoneIcon></Button>
+                            <Button onClick={() => cancelEdit("poster")}><CancelIcon style={{color: "black", alignItems: "right" }}></CancelIcon></Button>
+                            <TextField placeholder="New poster URL" value={tempPoster} onChange={(event) => setTempPoster(event.target.value)}></TextField>
+                            <Button onClick={() => handleEdit("poster")}><DoneIcon></DoneIcon></Button>
                         </div> :
                         <div style={{ display: "flex", alignContent: "flex-start", margin: "auto", justifyContent: "center" }}>
                             <Button onClick={() => toggleEditMode("poster")}><EditIcon style={{color: "black", alignItems: "right" }}></EditIcon></Button>
@@ -167,9 +197,9 @@ function EditMovie() {
                     {
                         editModeBooleans.description ?
                         <div>
-                            <Button onClick={() => toggleEditMode("description")} style={{width: "10%"}}><CancelIcon></CancelIcon></Button>
-                            <TextareaAutosize value={localMovieDetails.description} minRows={3} style={{width: "70%"}}></TextareaAutosize>
-                            <Button onClick={() => toggleEditMode("description")} style={{width: "10%"}}><DoneIcon></DoneIcon></Button>
+                            <Button onClick={() => cancelEdit("description")} style={{width: "10%"}}><CancelIcon></CancelIcon></Button>
+                            <TextareaAutosize value={tempDescription} minRows={3} style={{width: "70%"}} onChange={(event) => setTempDescription(event.target.value)}></TextareaAutosize>
+                            <Button onClick={() => handleEdit("description")} style={{width: "10%"}}><DoneIcon></DoneIcon></Button>
                         </div> :
                         <div style={{color: "black", textAlign: "left", margin: "20px"}}> <Button onClick={() => toggleEditMode("description")}><EditIcon></EditIcon></Button> <b>Description:</b> {localCopyInitialized ? localMovieDetails.description : movieDetails.description}</div>
                     }
