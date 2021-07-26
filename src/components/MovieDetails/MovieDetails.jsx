@@ -6,8 +6,13 @@ import './MovieDetails.css'
 function MovieDetails() {
     const { movieId } = useParams();
     const dispatch = useDispatch();
-    // const movies = useSelector(store => store.movies);
+    const movieDetails = useSelector(store => store.movieDetails);
 
+    useEffect(() => {
+        dispatch({ type: 'FETCH_MOVIE_DETAILS', payload: {id: movieId} });
+    }, []);
+
+    console.log("movie details:", movieDetails);
     return (
         <main>
             <h1>Movie Details</h1>
