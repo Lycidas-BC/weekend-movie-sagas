@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
     `;
     pool.query(query)
       .then( result => {
-        res.send(result.rows);
+        res.status(201).send(result.rows);
       })
       .catch(err => {
         console.log('ERROR: Get all movies', err);
