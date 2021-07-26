@@ -15,7 +15,7 @@ function MovieList() {
     return (
         <main>
             <h1>MovieList</h1>
-            <section className="movies">
+            <section className="movies" style={{ alignItems: "flex-end" }}>
                 {movies.map(movie => {
                     return (
                         <MovieItem key={movie.id} movieIn={movie}></MovieItem>
