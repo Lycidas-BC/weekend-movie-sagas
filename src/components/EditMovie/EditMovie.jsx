@@ -69,7 +69,7 @@ function EditMovie() {
 
     const removeGenre = (indexToRemove) => {
         console.log("In removeGenre", indexToRemove);
-
+        initializeLocalCopy();
         if (localCopyInitialized) {
             //create local copies arrays to update
             let newGenreList = localMovieDetails.genreList;
@@ -78,9 +78,6 @@ function EditMovie() {
             newGenreIdList.splice(indexToRemove, 1);
             //update state
             setLocalMovieDetails(oldState => ({ ...oldState, genreList: newGenreList, genreIdList: newGenreIdList}));
-        } else {
-            initializeLocalCopy();
-            removeGenre(indexToRemove);
         }
     }
 
