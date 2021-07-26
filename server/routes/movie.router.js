@@ -114,7 +114,7 @@ router.post('/', (req, res) => {
 router.put('/:movieId', (req, res) => {
   console.log(req.body);
   // get movieId and any associated genre_ids
-  const movieId = req.params.movieId;
+  const movieId = Number(req.params.movieId);
   const genreIdArray = req.body.genre_ids;
 
   // query to update "movies" table
@@ -134,7 +134,7 @@ router.put('/:movieId', (req, res) => {
   
     // REMOVE GENRES THAT NO LONGER APPLY
     // if genreIdArray is empty, delete all genres
-    let updateMovieGenreQuery = `
+    let removeGenres = `
       DELETE FROM "movies_genres"
       WHERE "movie_id" = $1
     `;
@@ -142,45 +142,63 @@ router.put('/:movieId', (req, res) => {
     // otherwise, only delete genres not in genreIdArray
     let placeholderString = "(";
     for (const index in genreIdArray) {
-      placeholderString += `$${index + 2},`;
+      placeholderString += `$${Number(index) + 2},`;
     }
     // replace trailing "," with ");" to close parentheses and end delete
     placeholderString = placeholderString.substring(0, placeholderString.length - 1);
     placeholderString += `);`
 
     if ( genreIdArray.length > 0 ) {
-      updateMovieGenreQuery += `AND "genre_id" NOT IN ${placeholderString}`;
+      removeGenres += `AND "genre_id" NOT IN ${placeholderString}`;
     }
 
-    // ADD ANY GENRES NOT IN "movies_genres" TABLE
-    for (const index in genreIdArray) {
-      // for each genre in genreIdArray,
-      // check if it's already associated with the movie
-      // and add the association if it doesn't exist
-      updateMovieGenreQuery += `
-        BEGIN
-          IF NOT EXISTS (SELECT * FROM "movies_genres" 
-                          WHERE "movie_id" = $1
-                          AND "genre_id" = $${index + 2})
-          BEGIN
-              INSERT INTO "movies_genres" ("movie_id", "genre_id")
-              VALUES ($1, $${index + 2})
-          END
-        END
-      `;
-    }
-
-    // QUERY TO EDIT MOVIE GENRES
-    pool.query(updateMovieGenreQuery, [movieId].concat(genreIdArray))
+    // REMOVE GENRES THAT NO LONGER APPLY
+    pool.query(removeGenres, [movieId].concat(genreIdArray))
     .then(result => {
-        res.sendStatus(201);
+      // ADD ANY GENRES NOT IN "movies_genres" TABLE
+      for (const genreId of genreIdArray) {
+        const checkIfExistQuery = `
+          SELECT COUNT("id") FROM "movies_genres" 
+          WHERE "movie_id" = $1
+          AND "genre_id" = $2;
+        `;
+        pool.query(checkIfExistQuery, [movieId, genreId])
+        .then(result => {
+          console.log("checkIfExistQuery result", result.rows[0].count);
+          if (Number(result.rows[0].count) === 0) {
+            // if genre isn't already in db, add it
+            const insertQuery = `
+              INSERT INTO "movies_genres" ("movie_id", "genre_id")
+              VALUES ($1, $2);
+            `;
+            pool.query(insertQuery, [movieId, genreId])
+          .then(result => {
+            console.log("insertQuery", movieId, genreId);
+            if(genreId === genreIdArray[genreIdArray.length - 1]){
+              //only send success status on last insert
+              res.sendStatus(201);
+            }
+          })
+          .catch(err => {
+            console.log(err);
+            res.sendStatus(500)
+          })
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          res.sendStatus(500)
+        })
+      }
+
     }).catch(err => {
+      // catch for query to remove genres not in array
       console.log(err);
       res.sendStatus(500)
     })
 
-  // catch for query to edit movie
   }).catch(err => {
+    // catch for query to edit movie
     console.log(err);
     res.sendStatus(500)
   })
