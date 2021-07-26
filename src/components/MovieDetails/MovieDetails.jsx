@@ -10,7 +10,7 @@ function MovieDetails() {
 
     return (
         <main>
-            <h1>MovieDetails</h1>
+            <h1>Movie Details</h1>
             <h2>movie Id: {movieId}</h2>
         </main>
     );
