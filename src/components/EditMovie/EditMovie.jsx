@@ -10,6 +10,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
+import CancelIcon from '@material-ui/icons/Cancel';
 import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
 import './EditMovie.css'
@@ -30,29 +31,38 @@ function EditMovie() {
         description: false,
         addGenre: false
     });
-    // let localCopyInitialized = false;
+    let localCopyInitialized = false;
 
     const addGenre = (newGenreId) => {
 
     }
 
+    const initializeLocalCopy = () => {
+        if (!localCopyInitialized) {
+            //localMovieDetails is updating before dispatch has time to load movieDetails
+            //so, on the first call to an edit button, I'm making sure it's initialized
+            setLocalMovieDetails(movieDetails);
+            localCopyInitialized = true;
+        }
+    }
+
     const toggleEditMode = (valueToToggle) => {
-        let localCopy = editModeBooleans;
+        initializeLocalCopy();
+
         switch (valueToToggle) {
             case "title":
-                localCopy.title = !localCopy.title;
+                setEditModeBooleans(oldState => ({ ...oldState, title: !oldState.title}));
                 break;
             case "poster":
-                localCopy.poster = !localCopy.poster;
+                setEditModeBooleans(oldState => ({ ...oldState, poster: !oldState.poster}));
                 break;
             case "description":
-                localCopy.description = !localCopy.description;
+                setEditModeBooleans(oldState => ({ ...oldState, description: !oldState.description}));
                 break;
             case "addGenre":
-                localCopy.addGenre = !localCopy.addGenre;
+                setEditModeBooleans(oldState => ({ ...oldState, addGenre: !oldState.addGenre}));
                 break;
         }
-        setEditModeBooleans(localCopy);
     }
 
     const saveEdits = () => {
@@ -110,7 +120,7 @@ function EditMovie() {
                             {
                                 editModeBooleans.addGenre ?
                                 <div>
-                                    <Button onClick={() => toggleEditMode("addGenre")}></Button>
+                                    <Button onClick={() => toggleEditMode("addGenre")}><CancelIcon></CancelIcon></Button>
                                     <Select
                                     native
                                     onChange={addGenre}
@@ -122,6 +132,7 @@ function EditMovie() {
                                             return (<option key={index} value={genre.id}>{genre.name}</option>)
                                         })}
                                     </Select>
+                                    <Button onClick={() => toggleEditMode("addGenre")}><AddIcon></AddIcon></Button>
                                 </div> :
                                 <li><Button onClick={() => toggleEditMode("addGenre")}><AddIcon></AddIcon></Button></li>
                             }
