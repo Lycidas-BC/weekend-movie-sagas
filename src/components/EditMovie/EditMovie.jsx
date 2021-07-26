@@ -87,7 +87,11 @@ function EditMovie() {
             //so, on the first call to an edit button, I'm making sure it's initialized
             console.log("initializing local variables");
             let localDetails = movieDetails;
-            localDetails.poster = `../../${movieDetails.poster}`;
+            if (movieDetails.poster.search("https://") < 0) {
+                //if there image isn't a URL,
+                //make sure path is relative to root
+                localDetails.poster = `/${movieDetails.poster}`;
+            }
             setLocalMovieDetails(localDetails);
             setTempTitle(localDetails.title);
             setTempPoster(localDetails.poster);
@@ -160,6 +164,14 @@ function EditMovie() {
 
     const saveEdits = () => {
         console.log(`in saveEdits`, movieId);
+        dispatch({ type: 'UPDATE_MOVIE_DETAILS', payload: {
+            id: movieId,
+            title: localMovieDetails.title,
+            poster: localMovieDetails.poster,
+            description: localMovieDetails.description,
+            genre_ids: localMovieDetails.genreIdList
+        } });
+        history.push(`/details/${movieId}`);
     }
 
     const goHome = () => {
@@ -196,11 +208,12 @@ function EditMovie() {
                         <div style={{ display: "flex", alignContent: "flex-start", margin: "auto", justifyContent: "center" }}>
                             <Button onClick={() => toggleEditMode("poster")}><EditIcon style={{color: "black", alignItems: "right" }}></EditIcon></Button>
                             <CardMedia
-                                style={{maxHeight: "40%", maxWidth: "40%", padding: "10% 7% 10% 7%", backgroundImage: "url(../../images/frame.jpg)", backgroundRepeat: "no-repeat", backgroundSize: "100% 100%" }}
+                                style={{maxHeight: "40%", maxWidth: "40%", padding: "10% 7% 10% 7%", backgroundImage: "url(/images/frame.jpg)", backgroundRepeat: "no-repeat", backgroundSize: "100% 100%" }}
                                 className={movieDetails.title}
                                 component="img"
                                 alt={movieDetails.title}
-                                src={localCopyInitialized ? localMovieDetails.poster : `../../${movieDetails.poster}`}
+                                src={localCopyInitialized ? localMovieDetails.poster : (
+                                    movieDetails.poster.search("https://") < 0 ? `/${movieDetails.poster}` : movieDetails.poster )}
                                 title={movieDetails.title}
                             />
                         </div>
