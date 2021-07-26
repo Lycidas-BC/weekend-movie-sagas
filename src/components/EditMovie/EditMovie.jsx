@@ -36,7 +36,7 @@ function EditMovie() {
     const movieDetails = useSelector(store => store.movieDetails);
     const genres = useSelector(store => store.genres);
     const [localMovieDetails, setLocalMovieDetails] = useState(blankMovieObject);
-    const [genreToAdd, setGenreToAdd] = useState(0);
+    const [genreToAdd, setGenreToAdd] = useState(1);
     const [tempTitle, setTempTitle] = useState("");
     const [tempPoster, setTempPoster] = useState("");
     const [tempDescription, setTempDescription] = useState("");
@@ -49,6 +49,7 @@ function EditMovie() {
     const [localCopyInitialized, setLocalCopyInitialized] = useState(false);
 
     const addGenre = () => {
+        initializeLocalCopy();
         console.log('In addGenre', genreToAdd, genres[genreToAdd].name);
         //create local copies arrays to update
         let newGenreList = localMovieDetails.genreList;
@@ -68,13 +69,19 @@ function EditMovie() {
 
     const removeGenre = (indexToRemove) => {
         console.log("In removeGenre", indexToRemove);
-        //create local copies arrays to update
-        let newGenreList = localMovieDetails.genreList;
-        newGenreList.splice(indexToRemove, 1);
-        let newGenreIdList = localMovieDetails.genreIdList;
-        newGenreIdList.splice(indexToRemove, 1);
-        //update state
-        setLocalMovieDetails(oldState => ({ ...oldState, genreList: newGenreList, genreIdList: newGenreIdList}));
+
+        if (localCopyInitialized) {
+            //create local copies arrays to update
+            let newGenreList = localMovieDetails.genreList;
+            newGenreList.splice(indexToRemove, 1);
+            let newGenreIdList = localMovieDetails.genreIdList;
+            newGenreIdList.splice(indexToRemove, 1);
+            //update state
+            setLocalMovieDetails(oldState => ({ ...oldState, genreList: newGenreList, genreIdList: newGenreIdList}));
+        } else {
+            initializeLocalCopy();
+            removeGenre(indexToRemove);
+        }
     }
 
     const handleChange = (event) => {

@@ -166,7 +166,7 @@ router.put('/:movieId', (req, res) => {
               INSERT INTO "movies_genres" ("movie_id", "genre_id")
               VALUES ($1, $${index + 2})
           END
-        END;
+        END
       `;
     }
 
